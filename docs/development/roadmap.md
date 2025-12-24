@@ -2,35 +2,30 @@
 
 ## 🗺️ GAIA v4/v4.1 Development Plan
 
-## 🎯 Current Status: v4.0 - Core Architecture
+## 🎯 Current Status: v4.1 - Meta-Learning of Plasticity
 
 ### Completed Features
-- [x] Core module structure with abstract base classes
-- [x] Type system and tensor operations
-- [x] ReactiveLayer implementation
-- [x] HebbianCore with multiple plasticity rules
-- [x] TemporalLayer for temporal processing
-- [x] HierarchicalLevel and HierarchyManager
-- [x] PlasticityController with Evolutionary Strategy
-- [x] Basic plasticity rules (Hebbian, Oja, BCM)
-- [x] MetaOptimizer framework
-- [x] Configuration system
-- [x] Logging and visualization utilities
-- [x] Comprehensive documentation
+- [x] Core architecture with abstract base classes
+- [x] Multiple Hebbian learning rules (STDP, Oja, BCM)
+- [x] Hierarchical processing system with strict management
+- [x] Evolutionary Strategy optimization with Hill Climbing
+- [x] Meta-learning framework with early stopping
+- [x] GPU Acceleration with CuPy (Hybrid System)
+- [x] Comprehensive documentation and benchmarks
 
 ### Current Capabilities
 - Hierarchical processing with temporal abstraction
-- Hebbian learning with multiple rules
+- Hebbian learning with multiple rules including STDP
 - Evolutionary Strategy for plasticity control
-- Basic meta-learning framework
-- Modular, extensible architecture
+- Robust meta-learning with convergence checks
+- Automatic GPU/CPU dispatch
 
-## 🚀 v4.1 - Meta-Learning of Plasticity (Current Focus)
+## 🚀 v4.2 - Advanced Features (Next Focus)
 
 ### Core Objectives
-- **Meta-Learning**: System learns optimal plasticity parameters
-- **Adaptive Behavior**: Dynamic adaptation to different tasks
-- **Evolutionary Optimization**: Robust parameter search
+- **Neuroevolution**: Direct neural architecture evolution
+- **Multi-Modal Processing**: Integration of different sensory modalities
+- **Advanced Optimization**: CMA-ES and Natural Evolution Strategies
 
 ### Planned Features
 
@@ -46,17 +41,11 @@
 - [ ] Cross-level communication protocols
 - [ ] Hierarchy optimization algorithms
 
-#### Learning Capabilities
-- [ ] Task distribution learning
-- [ ] Meta-parameter initialization
-- [ ] Performance-based adaptation
-- [ ] Stability-plasticity balance optimization
-
 ### Timeline
-- **Q1 2026**: Core plasticity meta-learning
-- **Q2 2026**: Hierarchy enhancements
-- **Q3 2026**: Advanced learning capabilities
-- **Q4 2026**: Integration and testing
+- **Q1 2026**: Advanced ES and Optimization
+- **Q2 2026**: Neuroevolution prototypes
+- **Q3 2026**: Multi-modal integration
+- **Q4 2026**: Production hardening
 
 ## 🔮 v4.2 - Advanced Features
 
@@ -133,24 +122,29 @@
 
 ## 📋 Version History
 
-### v4.0 (2025-12-24)
+### v4.1 (2025-12-24)
+- Meta-learning of plasticity (Hill Climbing, Early Stopping)
+- STDP learning rule realization
+- GPU acceleration via CuPy
+- Hierarchy management improvements
+- Full benchmarking suite
+
+### v4.0 (2025-12-01)
 - Initial core architecture
 - Basic layer implementations
 - Hierarchy system
 - Plasticity controller
 - Documentation framework
 
-### v4.1 (Planned 2026-06-30)
-- Meta-learning of plasticity
-- Advanced ES optimization
-- Hierarchy enhancements
-- Task adaptation capabilities
-
-### v4.2 (Planned 2026-12-31)
+### v4.2 (Planned 2026-03-31)
+- Advanced ES optimization (CMA-ES)
 - Neuroevolution features
-- Multi-modal processing
 - Memory systems
+
+### v4.3 (Planned 2026-09-30)
+- Multi-modal processing
 - RL integration
+- Production deployment tools
 
 ## 🎯 Community Goals
 
@@ -188,36 +182,30 @@
 
 ### [Unreleased]
 
-### [v4.0] - 2025-12-24
+### [v4.1] - 2025-12-24
 #### Added
-- Core architecture with abstract base classes
-- Layer implementations (Reactive, Hebbian, Temporal)
-- Hierarchy system (Level, Manager)
-- Plasticity controller with ES optimization
-- Meta-learning framework
-- Configuration and utility modules
-- Comprehensive documentation
+- STDP Rule implementation
+- GPU utility module
+- Benchmark suite
+- Hill Climbing meta-optimization
 
-#### Changed
-- Initial project structure
-- Type system and tensor operations
-- Basic communication protocols
+### [v4.0] - 2025-12-01
+#### Added
+- Core architecture
+- Basic plasticity rules
 
-#### Fixed
-- Initial implementation issues
-- Documentation formatting
-
-[Unreleased]: https://github.com/kelaci/gaia/compare/v4.0...HEAD
+[Unreleased]: https://github.com/kelaci/gaia/compare/v4.1.0...HEAD
+[v4.1]: https://github.com/kelaci/gaia/releases/tag/v4.1.0
 [v4.0]: https://github.com/kelaci/gaia/releases/tag/v4.0
 
 ## 🎯 Next Steps
 
-The current focus is on **v4.1 - Meta-Learning of Plasticity**, with the following immediate priorities:
+The current focus is on **v4.2 - Advanced Features**, with the following immediate priorities:
 
-1. **Complete core implementation** of all specified components
-2. **Implement advanced ES variants** for better optimization
-3. **Develop hierarchy attention mechanisms** for selective processing
-4. **Create comprehensive test suite** for all components
-5. **Build practical examples** demonstrating meta-learning capabilities
+1. **Implement CMA-ES** for robust meta-optimization
+2. **Design Neuroevolution** prototypes for architecture search
+3. **Integrate Multi-modal** processing interfaces
+4. **Expand GPU coverage** to remaining components
+5. **Develop Memory Systems** (Long-term/Episodic)
 
-This roadmap provides a clear path for GAIA's development from core architecture to advanced meta-learning capabilities!
+This roadmap provides a clear path for GAIA's continued evolution!
