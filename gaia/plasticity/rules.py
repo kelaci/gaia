@@ -185,15 +185,12 @@ class BCMRule(PlasticityRule):
 
 class STDPRule(PlasticityRule):
     """
-    Spike-Timing Dependent Plasticity rule.
+    Spike-Timing Dependent Plasticity (Rate-based Approximation).
 
-    This rule implements a more biologically plausible learning rule
-    that depends on the relative timing of pre- and post-synaptic spikes.
-
-    TODO:
-        - Implement full STDP rule
-        - Add support for different timing windows
-        - Consider different STDP variants
+    This rule implements a rate-based approximation of STDP suitable for
+    non-spiking neural networks. It captures the interaction between
+    pre- and post-synaptic activity with a non-linear term to mimic
+    temporal asymmetry effects in a rate-coded context.
     """
 
     def __init__(self, learning_rate: float = 0.01, tau: float = 20.0):
@@ -202,7 +199,7 @@ class STDPRule(PlasticityRule):
 
         Args:
             learning_rate: Learning rate parameter
-            tau: Time constant for STDP window
+            tau: Time constant (used conceptually in this approximation)
         """
         self.learning_rate = learning_rate
         self.tau = tau
@@ -210,7 +207,12 @@ class STDPRule(PlasticityRule):
     def apply(self, weights: np.ndarray, pre_activity: np.ndarray,
               post_activity: np.ndarray) -> np.ndarray:
         """
-        Apply STDP learning rule.
+        Apply rate-based STDP approximation.
+
+        Uses a BCM-like quadratic interaction term to approximate the
+        net effect of STDP in rate-based populations, boosting weights
+        where post-activity is high and correlated with pre-activity,
+        and depressing them otherwise.
 
         Args:
             weights: Current weight matrix
@@ -219,15 +221,14 @@ class STDPRule(PlasticityRule):
 
         Returns:
             Updated weight matrix
-
-        TODO:
-            - Implement proper STDP computation
-            - Add timing-dependent weight updates
-            - Consider different STDP kernels
         """
-        # Placeholder implementation
-        # In practice, this would use spike timing information
-        weight_update = self.learning_rate * np.outer(post_activity, pre_activity)
+        # Rate-based approximation:
+        # 1. LTP term: Hebbian correlation (post * pre)
+        # 2. LTD term: Nonlinear depression (post^2 * pre^2) to prevent runaway
+        weight_update = self.learning_rate * (
+            np.outer(post_activity, pre_activity) - 
+            0.5 * np.outer(post_activity**2, pre_activity**2)
+        )
         return weights + weight_update
 
     def get_parameters(self) -> Dict[str, float]:

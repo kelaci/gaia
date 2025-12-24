@@ -25,8 +25,8 @@ def meta_learning_demo():
 
     # Create target modules
     logger.info("Creating target modules...")
-    hebbian_core = HebbianCore(input_size=20, output_size=40, plasticity_rule='hebbian')
-    temporal_layer = TemporalLayer(input_size=40, output_size=80, time_window=5)
+    hebbian_core = HebbianCore(20, 40, plasticity_rule='hebbian')
+    temporal_layer = TemporalLayer(40, 80, time_window=5)
 
     # Create plasticity controller
     logger.info("Creating PlasticityController...")
@@ -134,7 +134,7 @@ def task_adaptation_demo():
     print("=" * 50)
 
     # Create a HebbianCore that will adapt to different tasks
-    core = HebbianCore(input_size=10, output_size=20, plasticity_rule='hebbian')
+    core = HebbianCore(10, 20, plasticity_rule='hebbian')
 
     # Define different task patterns
     tasks = {
@@ -182,9 +182,9 @@ def multi_task_learning():
 
     # Create multiple HebbianCores for different tasks
     cores = {
-        'task1': HebbianCore(input_size=10, output_size=20, plasticity_rule='hebbian'),
-        'task2': HebbianCore(input_size=10, output_size=20, plasticity_rule='oja'),
-        'task3': HebbianCore(input_size=10, output_size=20, plasticity_rule='bcm')
+        'task1': HebbianCore(10, 20, plasticity_rule='hebbian'),
+        'task2': HebbianCore(10, 20, plasticity_rule='oja'),
+        'task3': HebbianCore(10, 20, plasticity_rule='bcm')
     }
 
     # Generate task data

@@ -14,67 +14,43 @@ def measure_plasticity_efficiency(module: Module) -> float:
     """
     Measure plasticity efficiency of a module.
 
-    Plasticity efficiency evaluates how effectively a module can adapt
-    to new information while maintaining stable performance.
-
-    Args:
-        module: Module to evaluate
-
-    Returns:
-        Plasticity efficiency score (0-1, higher is better)
-
-    TODO:
-        - Implement proper efficiency measurement
-        - Add support for different efficiency metrics
-        - Consider computational efficiency
+    Evaluates how effectively weights adapt to input statistics.
     """
-    # Placeholder implementation
-    # In practice, this would measure adaptation speed vs. stability
-    return np.random.random()
+    if hasattr(module, 'activity_history') and len(module.activity_history) > 1:
+        # Measure variance in representations - higher variance in response 
+        # to diverse inputs indicates efficient plasticity
+        representations = [h[1] for h in module.activity_history]
+        return float(np.mean(np.std(representations, axis=0)))
+    return 0.5
 
 def measure_adaptation_speed(module: Module) -> float:
     """
     Measure adaptation speed of a module.
 
-    Adaptation speed evaluates how quickly a module can learn new
-    patterns or adapt to new tasks.
-
-    Args:
-        module: Module to evaluate
-
-    Returns:
-        Adaptation speed score (0-1, higher is better)
-
-    TODO:
-        - Implement proper speed measurement
-        - Add support for different speed metrics
-        - Consider different adaptation scenarios
+    Evaluates rate of weight change relative to input intensity.
     """
-    # Placeholder implementation
-    # In practice, this would measure convergence rate
-    return np.random.random()
+    if hasattr(module, 'activity_history') and len(module.activity_history) > 2:
+        # Measure cumulative change in activity traces
+        activities = np.array([h[1] for h in module.activity_history])
+        diffs = np.linalg.norm(np.diff(activities, axis=0), axis=1)
+        return float(np.mean(diffs))
+    return 0.5
 
 def measure_stability_plasticity_tradeoff(module: Module) -> float:
     """
     Measure stability-plasticity tradeoff.
 
-    This metric evaluates the balance between maintaining stable
-    representations (stability) and adapting to new information (plasticity).
-
-    Args:
-        module: Module to evaluate
-
-    Returns:
-        Tradeoff score (0-1, higher is better balance)
-
-    TODO:
-        - Implement proper tradeoff measurement
-        - Add support for different evaluation protocols
-        - Consider different stability/plasticity metrics
+    Evaluates the balance between maintaining stable
+    representations and adapting to new information.
     """
-    # Placeholder implementation
-    # In practice, this would measure the balance between stability and plasticity
-    return np.random.random()
+    speed = measure_adaptation_speed(module)
+    if hasattr(module, 'activity_history') and len(module.activity_history) > 5:
+        # High stability = low variance in steady state
+        recent_activity = np.array([h[1] for h in module.activity_history[-5:]])
+        stability = 1.0 / (np.mean(np.std(recent_activity, axis=0)) + 1e-8)
+        # Harmonized mean of speed and stability
+        return float(2 * (speed * stability) / (speed + stability + 1e-8))
+    return 0.5
 
 def evaluate_meta_learning_curve(learning_history: LearningHistory) -> PerformanceMetrics:
     """

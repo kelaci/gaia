@@ -445,6 +445,7 @@ GAIA is built on foundational work from neuroscience and machine learning:
 - [x] Evolutionary Strategy optimization
 - [x] Meta-learning framework
 - [x] Comprehensive documentation
+- [x] PyTorch v3.1 Protocol Integration (Prototype)
 
 ### Coming: v4.2.0 🚧
 

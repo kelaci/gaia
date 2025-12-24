@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gaia-framework"
+version = "4.1.0"
+description = "Generalized Adaptive Intelligent Architecture"
+readme = "README.md"
+authors = [
+  { name = "GAIA Development Team", email = "dev@gaia.ai" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["neuroscience", "hebbian-learning", "active-inference", "meta-learning"]
+dependencies = [
+    "numpy>=1.20.0",
+    "matplotlib>=3.4.0",
+    "scipy>=1.7.0",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",
+    "black>=21.0",
+    "flake8>=3.9.0",
+    "isort>=5.0.0",
+    "mypy>=0.900",
+]
+torch = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/kelaci/gaia"
+"Bug Tracker" = "https://github.com/kelaci/gaia/issues"
+
+[tool.setuptools]
+packages = ["gaia"]

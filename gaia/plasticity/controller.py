@@ -109,25 +109,8 @@ class PlasticityController:
 
         Args:
             params: Parameter vector to apply temporarily
-
-        TODO:
-            - Implement proper temporary parameter application
-            - Add rollback mechanism
-            - Consider parameter validation
         """
-        # Store current parameters for rollback
-        current_params = [module.get_plasticity_params().copy() for module in self.target_modules]
-
-        try:
-            # Apply new parameters
-            self._apply_params_specific(params)
-
-            # Parameters are applied, evaluation will be done by caller
-        except Exception as e:
-            # Rollback on error
-            for i, module in enumerate(self.target_modules):
-                module.set_plasticity_params(current_params[i])
-            raise e
+        self._apply_params_specific(params)
 
     def _apply_params(self) -> None:
         """
@@ -158,19 +141,18 @@ class PlasticityController:
 
     def _evaluate_performance(self) -> float:
         """
-        Evaluate current performance.
+        Evaluate current performance based on plasticity efficiency.
 
         Returns:
             Performance score
-
-        TODO:
-            - Implement proper performance evaluation
-            - Add support for different evaluation metrics
-            - Consider multi-objective optimization
         """
-        # Placeholder: return random performance for now
-        # In practice, this would run a task and measure performance
-        return np.random.random()
+        from gaia.meta_learning.metrics import measure_plasticity_efficiency
+        
+        scores = []
+        for module in self.target_modules:
+            scores.append(measure_plasticity_efficiency(module))
+            
+        return float(np.mean(scores))
 
     def get_current_params(self) -> Tensor:
         """

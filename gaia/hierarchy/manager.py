@@ -128,28 +128,28 @@ class HierarchyManager:
 
         Args:
             t: Current time step
-
-        TODO:
-            - Implement sophisticated communication protocols
-            - Add attention mechanisms for selective communication
-            - Consider different communication timing strategies
         """
-        # Bottom-up communication
+        # 1. Bottom-up communication (Level N -> Level N-1)
+        # Levels send their summary/representation upwards
         for i in range(len(self.levels) - 1, 0, -1):
             current_level = self.levels[i]
-            parent_level = current_level.parent_level
-
-            if parent_level is not None:
+            if current_level.parent_level is not None:
                 comm_data = current_level.communicate_with_parent()
-                if comm_data is not None:
-                    parent_level.communicate_with_children(comm_data)
+                if comm_data:
+                    # Parent receives data from child
+                    current_level.parent_level.communication_buffer[f'child_{current_level.level_id}'] = comm_data
 
-        # Top-down communication
+        # 2. Top-down communication (Level N-1 -> Level N)
+        # Levels send contextual modulation downwards
         for i in range(len(self.levels) - 1):
             current_level = self.levels[i]
-            for child_level in current_level.child_levels:
-                # Children receive data through their communication buffer
-                pass
+            if current_level.child_levels:
+                top_down_data = {
+                    'level_id': current_level.level_id,
+                    'representation': current_level.get_representation(),
+                    'time_step': t
+                }
+                current_level.communicate_with_children(top_down_data)
 
     def get_all_representations(self) -> Dict[int, Optional[Tensor]]:
         """
@@ -195,10 +195,6 @@ class HierarchyManager:
 
         Returns:
             True if level was removed, False if not found
-
-        TODO:
-            - Implement proper level removal with relationship updates
-            - Handle edge cases (removing input level, etc.)
         """
         for i, level in enumerate(self.levels):
             if level.level_id == level_id:

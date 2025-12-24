@@ -23,8 +23,8 @@ def plasticity_demo():
 
     # Create target modules for plasticity control
     logger.info("Creating target modules...")
-    hebbian_core = HebbianCore(input_size=20, output_size=40, plasticity_rule='hebbian')
-    temporal_layer = TemporalLayer(input_size=40, output_size=80, time_window=5)
+    hebbian_core = HebbianCore(20, 40, plasticity_rule='hebbian')
+    temporal_layer = TemporalLayer(input_size=40, hidden_size=80, time_window=5)
 
     print(f"HebbianCore: {hebbian_core}")
     print(f"TemporalLayer: {temporal_layer}")
@@ -132,7 +132,7 @@ def plasticity_rule_comparison():
         print(f"\nTesting {rule.upper()} rule...")
 
         # Create HebbianCore with specific rule
-        core = HebbianCore(input_size=20, output_size=40, plasticity_rule=rule)
+        core = HebbianCore(20, 40, plasticity_rule=rule)
 
         # Simple test: measure weight changes over time
         weight_history = []

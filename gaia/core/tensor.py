@@ -58,6 +58,29 @@ def apply_activation(x: np.ndarray, activation: str) -> np.ndarray:
     else:
         raise ValueError(f"Unknown activation: {activation}")
 
+def apply_activation_derivative(x: np.ndarray, activation: str) -> np.ndarray:
+    """
+    Apply activation function derivative.
+
+    Args:
+        x: Input tensor (pre-activation or post-activation depending on function)
+        activation: Activation function name
+
+    Returns:
+        Derivative tensor
+    """
+    if activation == 'relu':
+        return (x > 0).astype(float)
+    elif activation == 'sigmoid':
+        s = 1 / (1 + np.exp(-x))
+        return s * (1 - s)
+    elif activation == 'tanh':
+        return 1.0 - np.tanh(x)**2
+    elif activation == 'linear':
+        return np.ones_like(x)
+    else:
+        raise ValueError(f"Unknown activation: {activation}")
+
 def normalize_tensor(x: np.ndarray, axis: Optional[int] = None, eps: float = 1e-8) -> np.ndarray:
     """
     Normalize tensor along specified axis.
@@ -73,35 +96,37 @@ def normalize_tensor(x: np.ndarray, axis: Optional[int] = None, eps: float = 1e-
     norm = np.linalg.norm(x, axis=axis, keepdims=True)
     return x / (norm + eps)
 
-def temporal_convolution(x: np.ndarray, kernel: np.ndarray, mode: str = 'valid') -> np.ndarray:
+def temporal_convolution(x: np.ndarray, kernel: np.ndarray, mode: str = 'same') -> np.ndarray:
     """
     Apply temporal convolution.
 
     Args:
         x: Input tensor (time, features)
-        kernel: Convolution kernel (time,)
+        kernel: Convolution kernel (kernel_time,) or (kernel_time, features)
         mode: Convolution mode ('valid', 'same', 'full')
 
     Returns:
-        Convolved tensor
-
-    TODO:
-        - Implement efficient temporal convolution
-        - Add support for multi-dimensional kernels
-        - Optimize for different convolution modes
+        Convolved tensor (time, features)
     """
-    # Placeholder implementation - will be optimized
-    if len(x.shape) == 2 and len(kernel.shape) == 1:
-        # Simple 1D convolution along time axis
+    if len(x.shape) != 2:
+        raise ValueError(f"Input x must be 2D (time, features), got {x.shape}")
+
+    time_steps, features = x.shape
+    
+    if len(kernel.shape) == 1:
+        # 1D kernel applied to each feature independently
         result = np.zeros_like(x)
-        kernel_len = len(kernel)
-
-        for t in range(x.shape[0]):
-            start = max(0, t - kernel_len // 2)
-            end = min(x.shape[0], t + kernel_len // 2 + 1)
-            window = x[start:end, :]
-            result[t, :] = np.dot(window.T, kernel[start-t+kernel_len//2:end-t+kernel_len//2])
-
+        for f in range(features):
+            result[:, f] = np.convolve(x[:, f], kernel, mode=mode)
+        return result
+    elif len(kernel.shape) == 2:
+        # 2D kernel (kernel_time, features)
+        if kernel.shape[1] != features:
+            raise ValueError(f"Kernel features {kernel.shape[1]} must match input features {features}")
+        
+        result = np.zeros_like(x)
+        for f in range(features):
+            result[:, f] = np.convolve(x[:, f], kernel[:, f], mode=mode)
         return result
     else:
         raise NotImplementedError("Multi-dimensional temporal convolution not yet implemented")
@@ -111,19 +136,24 @@ def correlation_matrix(x: np.ndarray) -> np.ndarray:
     Compute correlation matrix of input tensor.
 
     Args:
-        x: Input tensor (time, features)
+        x: Input tensor (batch/time, features)
 
     Returns:
         Correlation matrix (features, features)
-
-    TODO:
-        - Implement efficient correlation computation
-        - Add support for different correlation measures
     """
-    # Simple covariance-based correlation
-    if len(x.shape) == 2:
-        cov = np.cov(x, rowvar=False)
-        std = np.sqrt(np.diag(cov))
-        return cov / np.outer(std, std)
+    if len(x.shape) != 2:
+        raise ValueError(f"Input x must be 2D (time, features), got {x.shape}")
+        
+    # Standardize inputs
+    x_mean = np.mean(x, axis=0)
+    x_std = np.std(x, axis=0) + 1e-8
+    x_standardized = (x - x_mean) / x_std
+    
+    # Compute correlation matrix: (X.T @ X) / (N - 1)
+    n = x.shape[0]
+    if n > 1:
+        corr = np.dot(x_standardized.T, x_standardized) / (n - 1)
     else:
-        raise ValueError("Input must be 2D tensor (time, features)")
+        corr = np.eye(x.shape[1])
+        
+    return corr

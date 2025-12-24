@@ -8,7 +8,7 @@ import numpy as np
 from typing import Optional, Dict, Tuple, Any
 from gaia.core.base import Layer
 from gaia.core.types import Tensor, ActivationFunction
-from gaia.core.tensor import initialize_weights, apply_activation
+from gaia.core.tensor import initialize_weights, apply_activation, apply_activation_derivative
 
 class ReactiveLayer(Layer):
     """
@@ -43,6 +43,8 @@ class ReactiveLayer(Layer):
         self.biases = None
         self.activation_fn = activation
         self.init_type = init_type
+        self.last_input: Optional[Tensor] = None
+        self.last_pre_activation: Optional[Tensor] = None
 
         self._initialize_parameters()
 
@@ -67,11 +69,12 @@ class ReactiveLayer(Layer):
         if x.shape[1] != self.input_size:
             raise ValueError(f"Input size mismatch: expected {self.input_size}, got {x.shape[1]}")
 
+        self.last_input = x
         # Linear transformation
-        output = np.dot(x, self.weights.T) + self.biases
+        self.last_pre_activation = np.dot(x, self.weights.T) + self.biases
 
         # Apply activation
-        return apply_activation(output, self.activation_fn)
+        return apply_activation(self.last_pre_activation, self.activation_fn)
 
     def backward(self, grad: Tensor) -> Tensor:
         """
@@ -82,14 +85,18 @@ class ReactiveLayer(Layer):
 
         Returns:
             Gradient for previous layer (batch_size, input_size)
-
-        TODO:
-            - Implement proper gradient computation
-            - Add support for different loss functions
-            - Optimize for memory efficiency
         """
-        # Placeholder implementation
-        return np.dot(grad, self.weights)
+        if self.last_pre_activation is None:
+            raise ValueError("Forward pass must be called before backward pass")
+
+        # Derivative of activation
+        da = apply_activation_derivative(self.last_pre_activation, self.activation_fn)
+        
+        # Combined gradient
+        delta = grad * da
+        
+        # Gradient with respect to input: delta @ weights
+        return np.dot(delta, self.weights)
 
     def update(self, lr: float) -> None:
         """

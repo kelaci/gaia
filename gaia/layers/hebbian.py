@@ -103,13 +103,9 @@ class HebbianCore(PlasticComponent):
 
         Returns:
             Gradient for previous layer
-
-        TODO:
-            - Implement proper gradient computation for Hebbian learning
-            - Add support for different loss functions
-            - Consider biological plausibility constraints
         """
-        # Placeholder implementation
+        # Hebbian layers are typically local, but if part of a global gradient flow:
+        # returns grad @ weights
         return np.dot(grad, self.weights)
 
     def update(self, lr: Optional[float] = None) -> None:
@@ -160,12 +156,18 @@ class HebbianCore(PlasticComponent):
         """
         Apply homeostatic regulation to maintain stable activity.
 
-        TODO:
-            - Implement more sophisticated homeostatic mechanisms
-            - Add activity-dependent regulation
-            - Consider different normalization strategies
+        Implements synaptic scaling and weight normalization to prevent
+        runaway excitation and maintain stability.
         """
-        # Simple weight normalization
+        strength = self.plasticity_params.get('homeostatic_strength', 0.1)
+        
+        # 1. Synaptic scaling toward target mean activity
+        target_activity = 0.5
+        current_activity = np.mean(self.post_synaptic)
+        scaling_factor = 1.0 + strength * (target_activity - current_activity)
+        self.weights *= scaling_factor
+
+        # 2. Weight normalization (L2 norm per neuron)
         norm = np.linalg.norm(self.weights, axis=1, keepdims=True)
         self.weights = self.weights / (norm + 1e-8)
 

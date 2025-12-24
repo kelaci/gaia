@@ -129,24 +129,16 @@ class HierarchicalLevel(BaseHierarchicalLevel):
 
         Returns:
             Data dictionary to send to parent, or None
-
-        TODO:
-            - Implement sophisticated communication protocols
-            - Add attention mechanisms for selective communication
-            - Consider different communication strategies
         """
         if self.parent_level is None:
             return None
 
-        # Basic communication: send current representation
+        # Send current representation and any relevant metrics
         communication_data = {
             'level_id': self.level_id,
             'representation': self.current_representation,
             'time_step': self.time_step,
-            'metadata': {
-                'processing_layers': len(self.processing_layers),
-                'temporal_resolution': self.temporal_resolution
-            }
+            'energy': np.sum(np.square(self.current_representation)) if self.current_representation is not None else 0
         }
 
         return communication_data
@@ -157,21 +149,23 @@ class HierarchicalLevel(BaseHierarchicalLevel):
 
         Args:
             data: Data received from parent
-
-        TODO:
-            - Implement top-down communication protocols
-            - Add contextual modulation based on parent feedback
-            - Consider different communication strategies
         """
-        # Store received data in communication buffer
-        self.communication_buffer = data
+        # Store received data in communication buffer (Top-down modulation)
+        self.communication_buffer.update(data)
 
-        # Basic implementation: pass representation to children
-        if 'representation' in data and len(self.child_levels) > 0:
-            representation = data['representation']
+        # Apply top-down modulation to children if they exist
+        if 'representation' in data:
             for child in self.child_levels:
-                # Children will process this in their own time steps
-                pass
+                child.receive_top_down(data)
+
+    def receive_top_down(self, data: Dict[str, Any]) -> None:
+        """
+        Receive and process top-down modulation data.
+
+        Args:
+            data: Top-down data from parent
+        """
+        self.communication_buffer.update(data)
 
     def reset_state(self) -> None:
         """Reset internal state."""

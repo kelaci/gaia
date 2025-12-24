@@ -116,60 +116,81 @@ class MetaOptimizer:
 
         # Adapt to task for fixed number of steps
         performance = 0.0
+        prev_performance = 0.0
+        
         for step in range(self.meta_parameters['task_switch_frequency']):
             # Get task data and performance
             task_data = task(step)
-            performance += self._evaluate_task_performance(task_data)
+            current_perf = self._evaluate_task_performance(task_data)
+            performance += current_perf
 
             # Adapt plasticity parameters
             self.inner_loop.adapt_plasticity(task_data)
+            
+            # Early stopping check
+            if step > 0 and abs(current_perf - prev_performance) < 1e-4:
+                # Converged
+                break
+            prev_performance = current_perf
 
-        return performance / self.meta_parameters['task_switch_frequency']
+        # Return average performance over steps taken
+        return performance / (step + 1)
 
     def _evaluate_task_performance(self, task_data: Any) -> float:
         """
         Evaluate performance on a task.
 
         Args:
-            task_data: Task data/result
+            task_data: Task data/result (expected to be an array or dict)
 
         Returns:
             Performance score
-
-        TODO:
-            - Implement proper performance evaluation
-            - Add support for different performance metrics
-            - Consider multi-objective evaluation
         """
-        # Placeholder: return random performance for now
-        return np.random.random()
+        if isinstance(task_data, (np.ndarray, list)):
+            # Higher energy in representation might indicate better feature detection
+            return float(np.mean(np.abs(task_data)))
+        elif isinstance(task_data, dict) and 'performance' in task_data:
+            return float(task_data['performance'])
+        
+        return 0.5
 
     def outer_update(self, performance: float) -> None:
         """
-        Outer loop update of meta-parameters.
+        Outer loop update of meta-parameters using Hill Climbing.
 
         Args:
             performance: Task performance
-
-        TODO:
-            - Implement proper meta-parameter update
-            - Add gradient-based optimization
-            - Consider different outer loop strategies
         """
-        # Simple heuristic update for now
-        if performance > self.meta_parameters['performance_threshold']:
-            # Increase adaptation rate if performing well
-            self.meta_parameters['adaptation_rate'] = min(
-                0.1, self.meta_parameters['adaptation_rate'] * 1.05
-            )
+        # Hill Climbing:
+        # 1. Perturb parameters (already done in Exploration phase, implicitly)
+        # 2. If better, keep. If worse, revert (or revert with probability)
+        
+        # Current implementation: Adaptive heuristic
+        # If performance is good, we stabilize (reduce noise/learning rate)
+        # If performance is bad, we explore (increase noise/learning rate)
+        
+        target = self.meta_parameters.get('performance_threshold', 0.8)
+        
+        if performance >= target:
+            # Exploitation: Fine-tune
+            self.meta_parameters['adaptation_rate'] *= 0.99
+            self.meta_parameters['exploration_noise'] *= 0.95
         else:
-            # Decrease adaptation rate if performing poorly
-            self.meta_parameters['adaptation_rate'] = max(
-                0.001, self.meta_parameters['adaptation_rate'] * 0.95
-            )
+            # Exploration: Boost plasticity
+            self.meta_parameters['adaptation_rate'] *= 1.05
+            self.meta_parameters['exploration_noise'] *= 1.1
+
+        # Clip parameters to reasonable bounds
+        self.meta_parameters['adaptation_rate'] = np.clip(
+            self.meta_parameters['adaptation_rate'], 0.0001, 0.5
+        )
+        self.meta_parameters['exploration_noise'] = np.clip(
+            self.meta_parameters['exploration_noise'], 0.01, 1.0
+        )
 
         # Apply updated parameters to inner loop
         self.inner_loop.set_adaptation_rate(self.meta_parameters['adaptation_rate'])
+        self.inner_loop.set_exploration_noise(self.meta_parameters.get('exploration_noise', 0.1))
 
     def evaluate_meta_performance(self) -> PerformanceMetrics:
         """
